@@ -9,4 +9,6 @@ WORKDIR /app
 COPY --from=builder /backend /app/backend
 COPY ./demodata /app/demodata
 
+EXPOSE 3000
+
 CMD ["/app/backend"]
