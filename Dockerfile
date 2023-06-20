@@ -8,6 +8,7 @@ FROM scratch
 WORKDIR /app
 COPY --from=builder /backend /app/backend
 COPY ./demodata /app/demodata
+COPY ./config.yml /app/config.yml
 
 EXPOSE 3000
 
