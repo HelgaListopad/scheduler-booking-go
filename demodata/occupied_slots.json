@@ -1,0 +1,63 @@
+[
+  {
+    "doctor_id": 1,
+    "date": 1679288400000,
+    "client_name": "Milana Roober"
+  },
+  {
+    "doctor_id": 1,
+    "date": 1679293200000,
+    "client_name": "Robert Wills"
+  },
+  {
+    "doctor_id": 1,
+    "date": 1679300400000,
+    "client_name": "Ben"
+  },
+  {
+    "doctor_id": 1,
+    "date": 1679301600000,
+    "client_name": "Oliver"
+  },
+  {
+    "doctor_id": 1,
+    "date": 1679302800000,
+    "client_name": "John"
+  },
+  {
+    "doctor_id": 1,
+    "date": 1679304000000,
+    "client_name": "Seb"
+  },
+  {
+    "doctor_id": 5,
+    "date": 1679313600000,
+    "client_name": "Nick"
+  },
+  {
+    "doctor_id": 5,
+    "date": 1679317200000,
+    "client_name": "Ron"
+  },
+  {
+    "doctor_id": 5,
+    "date": 1679320800000,
+    "client_name": "Alex"
+  },
+  {
+    "doctor_id": 5,
+    "date": 1679335200000,
+    "client_name": "Maria"
+  },
+
+  {
+    "doctor_id": 3,
+    "date": 1679727600000,
+    "client_name": "Alex"
+  },
+  {
+    "doctor_id": 3,
+    "date": 1679729700000,
+    "client_name": "Maria"
+  }
+]

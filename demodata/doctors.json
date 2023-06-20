@@ -1,0 +1,43 @@
+[
+  {
+    "id": 1,
+    "name": "Toby Cannon",
+    "category": "Dantist",
+    "slot_size": 20,
+    "price": 45,
+    "image_url": ""
+  },
+  {
+    "id": 2,
+    "name": "Larissa Tillery",
+    "category": "Allergist",
+    "slot_size": 45,
+    "price": 120,
+    "image_url": ""
+  },
+  {
+    "id": 3,
+    "name": "Raymond Castro",
+    "category": "Oculist",
+    "slot_size": 25,
+    "price": 35,
+    "gap": 10,
+    "image_url": ""
+  },
+  {
+    "id": 4,
+    "name": "Dexter Porter",
+    "category": "Oculist",
+    "slot_size": 25,
+    "price": 40,
+    "image_url": ""
+  },
+  {
+    "id": 5,
+    "name": "Alan Boren",
+    "category": "Dantist",
+    "slot_size": 60,
+    "price": 175,
+    "image_url": ""
+  }
+]
