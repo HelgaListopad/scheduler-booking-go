@@ -24,8 +24,8 @@ type Unit struct {
 }
 
 type Schedule struct {
-	From  int     `json:"from"`
-	To    int     `json:"to"`
+	From  float32 `json:"from"`
+	To    float32 `json:"to"`
 	Size  int     `json:"size"`
 	Gap   int     `json:"gap"`
 	Days  []int   `json:"days,omitempty"`
@@ -69,8 +69,8 @@ func (s *unitsService) GetAll() ([]Unit, error) {
 			}
 
 			schedule = append(schedule, Schedule{
-				From:  sch.From,
-				To:    sch.To,
+				From:  m2h(sch.From),
+				To:    m2h(sch.To),
 				Size:  d.SlotSize,
 				Gap:   d.Gap,
 				Days:  days,
@@ -92,4 +92,10 @@ func (s *unitsService) GetAll() ([]Unit, error) {
 	}
 
 	return units, nil
+}
+
+func m2h(m int) float32 {
+	hours := m / 60
+	minutes := m % 60
+	return float32(hours) + float32(minutes)/60.0
 }
