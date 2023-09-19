@@ -7,5 +7,6 @@ RUN CGO_ENABLED=1 GOOS=linux go build -o /backend -a -ldflags '-linkmode externa
 FROM scratch
 WORKDIR /app
 COPY --from=builder /backend /app/backend
+COPY ./config.yml /app/config.yml
 
 CMD ["/app/backend"]

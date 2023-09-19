@@ -11,5 +11,5 @@ services:
       APP_DB_RESETONSTART: "true"
       APP_SERVER_URL: "http://localhost:3000"
       APP_SERVER_PORT: ":3000"
-      APP_SERVER_CORS: "[\"*\"]"
-
+      APP_SERVER_CORS: '["*"]'
+      APP_SERVER_RESETFREQUENCE: 120
