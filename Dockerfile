@@ -9,4 +9,6 @@ WORKDIR /app
 COPY --from=builder /backend /app/backend
 COPY ./config.yml /app/config.yml
 
+EXPOSE 3000
+
 CMD ["/app/backend"]
