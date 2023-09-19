@@ -3,6 +3,8 @@ package data
 type Doctor struct {
 	ID       int     `json:"id"`
 	Name     string  `json:"name"`
+	Subtitle string  `json:"subtitle"`
+	Details  string  `json:"details"`
 	Category string  `json:"category"`
 	Price    float32 `json:"price"`
 	Gap      int     `json:"gap"`
@@ -11,6 +13,14 @@ type Doctor struct {
 
 	DoctorSchedule []DoctorSchedule `json:"-"`
 	OccupiedSlots  []OccupiedSlot   `json:"-"`
+	Review         Review           `json:"-" gorm:"foreignkey:DoctorID"`
+}
+
+type Review struct {
+	ID       int `json:"-"`
+	Count    int `json:"count"`
+	Star     int `json:"star"`
+	DoctorID int `json:"-"`
 }
 
 type DoctorSchedule struct {

@@ -37,12 +37,18 @@ func dataUp(tx *gorm.DB) {
 
 	doctors := []Doctor{
 		{
-			Name:     "Toby Cannon",
-			Category: "Dantist",
+			Name:     "Conrad Hubbard",
+			Category: "Psychiatrist",
+			Subtitle: "2 years of experience",
+			Details:  "Desert Springs Hospital (Schroeders Avenue 90, Fannett, Ethiopia)",
 			SlotSize: 20,
 			Price:    45,
-			ImageURL: "",
+			ImageURL: "https://files.webix.com/30d/d34de82e0a8e3b561988a46ce1e86743/stock-photo-doc.jpg",
 			Gap:      20,
+			Review: Review{
+				Count: 1245,
+				Star:  4,
+			},
 			DoctorSchedule: append(
 				genSchedule(8*60, 16*60, 7, -1),
 				DoctorSchedule{
@@ -62,12 +68,18 @@ func dataUp(tx *gorm.DB) {
 			),
 		},
 		{
-			Name:     "Larissa Tillery",
+			Name:     "Debra Weeks",
 			Category: "Allergist",
+			Subtitle: "7 years of experience",
+			Details:  "Silverstone Medical Center (Vanderbilt Avenue 13, Chestnut, New Zealand)",
 			SlotSize: 45,
 			Price:    120,
-			ImageURL: "",
+			ImageURL: "https://files.webix.com/30d/d34de82e0a8e3b561988a46ce1e86743/stock-photo-doc.jpg",
 			Gap:      5,
+			Review: Review{
+				Count: 6545,
+				Star:  4,
+			},
 			DoctorSchedule: append(
 				[]DoctorSchedule{
 					{
@@ -104,12 +116,18 @@ func dataUp(tx *gorm.DB) {
 			),
 		},
 		{
-			Name:     "Raymond Castro",
+			Name:     "Barnett Mueller",
 			Category: "Oculist",
+			Subtitle: "6 years of experience",
+			Details:  "Navy Street 1, Kiskimere, United States",
 			SlotSize: 25,
 			Price:    35,
 			ImageURL: "",
 			Gap:      0,
+			Review: Review{
+				Count: 184,
+				Star:  3,
+			},
 			DoctorSchedule: []DoctorSchedule{
 				{
 					// mon, wen, wed fri 8:00-17:00
@@ -130,12 +148,18 @@ func dataUp(tx *gorm.DB) {
 			},
 		},
 		{
-			Name:     "Dexter Porter",
+			Name:     "Myrtle Wise",
 			Category: "Oculist",
+			Subtitle: "4 years of experience",
+			Details:  "Prescott Place 5, Freeburn, Bulgaria",
 			SlotSize: 25,
 			Price:    40,
 			ImageURL: "",
 			Gap:      5,
+			Review: Review{
+				Count: 829,
+				Star:  5,
+			},
 			DoctorSchedule: []DoctorSchedule{
 				{
 					// every week day from 9:00-17:00
@@ -154,12 +178,18 @@ func dataUp(tx *gorm.DB) {
 			},
 		},
 		{
-			Name:     "Alan Boren",
+			Name:     "Browning Peck",
 			Category: "Dantist",
+			Subtitle: "11 years of experience",
 			SlotSize: 60,
+			Details:  "Seacoast Terrace 174, Belvoir, Mauritania",
 			Price:    175,
 			ImageURL: "",
 			Gap:      10,
+			Review: Review{
+				Count: 391,
+				Star:  5,
+			},
 			DoctorSchedule: append(
 				[]DoctorSchedule{
 					{

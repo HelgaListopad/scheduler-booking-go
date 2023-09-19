@@ -32,6 +32,7 @@ func NewDAO(config DBConfig) *DAO {
 	db.AutoMigrate(&DoctorRoutine{})
 	db.AutoMigrate(&DoctorSchedule{})
 	db.AutoMigrate(&Doctor{})
+	db.AutoMigrate(&Review{})
 
 	dao := DAO{db: db}
 	dao.Doctors = newDoctorsDAO(db)

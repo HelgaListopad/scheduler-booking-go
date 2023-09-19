@@ -28,6 +28,7 @@ func (d *doctorsDAO) GetAll(preload bool) ([]Doctor, error) {
 	} else {
 		now := time.Now().UnixMilli()
 		err = d.db.
+			Preload("Review").
 			Preload("OccupiedSlots", "date > ?", now).
 			Preload("DoctorSchedule").
 			Preload("DoctorSchedule.DoctorRecurringRoutine").

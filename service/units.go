@@ -10,13 +10,14 @@ type unitsService struct {
 }
 
 type Unit struct {
-	ID       int     `json:"id"`
-	Title    string  `json:"title"`
-	Category string  `json:"category"`
-	Subtitle string  `json:"subtitle"`
-	Details  string  `json:"details"`
-	Preview  string  `json:"preview"`
-	Price    float32 `json:"price"`
+	ID       int         `json:"id"`
+	Title    string      `json:"title"`
+	Category string      `json:"category"`
+	Subtitle string      `json:"subtitle"`
+	Details  string      `json:"details"`
+	Preview  string      `json:"preview"`
+	Price    float32     `json:"price"`
+	Review   data.Review `json:"review"`
 
 	Slots          []Schedule `json:"slots"`
 	AvailableSlots []int64    `json:"availableSlots,omitempty"`
@@ -81,10 +82,11 @@ func (s *unitsService) GetAll() ([]Unit, error) {
 		units[i] = Unit{
 			ID:        d.ID,
 			Title:     d.Name,
-			Subtitle:  "",
-			Details:   "",
+			Subtitle:  d.Details,
+			Details:   d.Subtitle,
 			Category:  d.Category,
 			Price:     d.Price,
+			Review:    d.Review,
 			Preview:   d.ImageURL,
 			UsedSlots: usedSlots,
 			Slots:     schedule,
