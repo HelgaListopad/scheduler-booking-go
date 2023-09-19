@@ -13,5 +13,3 @@ services:
       APP_SERVER_PORT: ":3000"
       APP_SERVER_CORS: "[\"*\"]"
 
-    volumes:
-      - "./demodata:/app/demodata"

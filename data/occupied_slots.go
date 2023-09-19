@@ -1,8 +1,6 @@
 package data
 
 import (
-	"fmt"
-
 	"gorm.io/gorm"
 )
 
@@ -27,14 +25,17 @@ func (d *occupiedSlotsDAO) GetOne(id int) (OccupiedSlot, error) {
 	return slot, err
 }
 
-func (d *occupiedSlotsDAO) GetWithQuery(query Query) ([]OccupiedSlot, error) {
-	args, err := query.sql()
-	if err != nil {
-		return nil, err
-	}
-
+func (d *occupiedSlotsDAO) GetAll() ([]OccupiedSlot, error) {
 	slots := make([]OccupiedSlot, 0)
-	err = d.db.Find(&slots, args...).Error
+	err := d.db.Find(&slots).Error
+	return slots, err
+}
+
+func (d *occupiedSlotsDAO) GetUsedSlot(doctorId int, date int64) (OccupiedSlot, error) {
+	slots := OccupiedSlot{}
+	err := d.db.
+		Limit(1).
+		Find(&slots, "date = ? AND doctor_id = ?", doctorId, date).Error
 	return slots, err
 }
 
@@ -52,36 +53,4 @@ func (d *occupiedSlotsDAO) Add(doctor int, date int64, name, email, details stri
 
 func (d *occupiedSlotsDAO) Delete(id int) error {
 	return d.db.Delete(&OccupiedSlot{}, id).Error
-}
-
-func (q Query) sql() ([]any, error) {
-	if q.EqualDate != 0 && (q.MinDate != 0 && q.MaxDate != 0) {
-		return nil, fmt.Errorf("query not valid: EqualDate or MinDate/MaxDate must be defined, not both")
-	}
-
-	sql := ""
-	args := make([]any, 0)
-
-	if q.DoctorID != 0 {
-		sql += "doctor_id = ?"
-		args = append(args, q.DoctorID)
-	}
-	if q.EqualDate != 0 {
-		sql += " date = ?"
-		args = append(args, q.EqualDate)
-	}
-	if q.MaxDate != 0 {
-		sql += " date >= ?"
-		args = append(args, q.MinDate)
-	}
-	if q.EqualDate != 0 {
-		sql += " date <= ?"
-		args = append(args, q.MaxDate)
-	}
-
-	if sql != "" {
-		args = append([]any{sql}, args)
-	}
-
-	return args, nil
 }

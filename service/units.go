@@ -2,6 +2,7 @@ package service
 
 import (
 	"scheduler-booking/data"
+	"time"
 )
 
 type unitsService struct {
@@ -47,18 +48,34 @@ func (s *unitsService) GetAll() ([]Unit, error) {
 			usedSlots[j] = d.OccupiedSlots[j].Date
 		}
 
-		schedule := make([]Schedule, len(d.DoctorsRoutine))
-		for j := range d.DoctorsRoutine {
-			r := &d.DoctorsRoutine[j]
-			s := r.StartDate.Date()
-			e := r.EndDate.Date()
-			schedule[j] = Schedule{
-				From:  s.Hour()*60 + s.Minute(),
-				To:    e.Hour()*60 + e.Minute(),
+		schedule := make([]Schedule, 0)
+		for j := range d.DoctorSchedule {
+			sch := &d.DoctorSchedule[j]
+
+			days := make([]int, len(sch.DoctorRecurringRoutine))
+			for i := range sch.DoctorRecurringRoutine {
+				days[i] = sch.DoctorRecurringRoutine[i].WeekDay
+			}
+
+			dates := make([]int64, 0)
+			for i := range sch.DoctorRoutine {
+				if sch.DoctorRoutine[i].Date > time.Now().UnixMilli() {
+					dates = append(dates, sch.DoctorRoutine[i].Date)
+				}
+			}
+			if len(dates) == 0 && len(days) == 0 {
+				// skip this rule as it is already expired
+				continue
+			}
+
+			schedule = append(schedule, Schedule{
+				From:  sch.From,
+				To:    sch.To,
 				Size:  d.SlotSize,
 				Gap:   d.Gap,
-				Dates: []int64{s.UnixMilli()},
-			}
+				Days:  days,
+				Dates: dates,
+			})
 		}
 
 		units[i] = Unit{

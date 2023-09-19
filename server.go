@@ -7,6 +7,7 @@ import (
 	"scheduler-booking/api"
 	"scheduler-booking/data"
 	"scheduler-booking/service"
+	"time"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
@@ -40,6 +41,17 @@ func main() {
 	api := api.NewAPI(service)
 
 	api.InitRoutes(r)
+
+	if Config.Server.ResetFrequence > 0 {
+		go func() {
+			f := time.Duration(Config.Server.ResetFrequence) * time.Minute
+			ticker := time.NewTicker(f)
+			for range ticker.C {
+				log.Println("Reset data...")
+				dao.RestartData()
+			}
+		}()
+	}
 
 	log.Printf("Starting webserver at port " + Config.Server.Port)
 	err := http.ListenAndServe(Config.Server.Port, r)

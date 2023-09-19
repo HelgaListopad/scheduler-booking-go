@@ -1,9 +1,9 @@
 package api
 
 import (
-	"scheduler-booking/service"
 	"fmt"
 	"net/http"
+	"scheduler-booking/service"
 
 	"github.com/go-chi/chi"
 	"github.com/unrolled/render"
@@ -34,7 +34,7 @@ func (api *API) InitRoutes(r chi.Router) {
 	})
 
 	r.Get("/doctors/worktime", func(w http.ResponseWriter, r *http.Request) {
-		data, err := api.sAll.Worktime.GetAll()
+		data, err := api.sAll.Worktime.GetRoutine()
 		api.response(w, data, err)
 	})
 
@@ -57,7 +57,8 @@ func (api *API) InitRoutes(r chi.Router) {
 			api.errResponse(w, err.Error())
 			return
 		}
-		err = api.sAll.Worktime.Update(id, worktime)
+		err = api.sAll.Worktime.UpdateDateSchedule(id, worktime)
+
 		api.response(w, &response{id}, err)
 	})
 
@@ -80,6 +81,7 @@ func (api *API) InitRoutes(r chi.Router) {
 			return
 		}
 		id, err := api.sAll.Reservations.Add(reservation)
+		
 		api.response(w, &response{id}, err)
 	})
 

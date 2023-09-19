@@ -1,9 +1,5 @@
 package data
 
-import (
-	"scheduler-booking/common"
-)
-
 type Doctor struct {
 	ID       int     `json:"id"`
 	Name     string  `json:"name"`
@@ -13,17 +9,34 @@ type Doctor struct {
 	SlotSize int     `json:"slot_size"`
 	ImageURL string  `json:"image_url"`
 
-	DoctorsRoutine []DoctorRoutine `json:"-"`
-	OccupiedSlots  []OccupiedSlot  `json:"-"`
+	DoctorSchedule []DoctorSchedule `json:"-"`
+	OccupiedSlots  []OccupiedSlot   `json:"-"`
+}
+
+type DoctorSchedule struct {
+	ID       int
+	DoctorID int
+	From     int
+	To       int
+
+	DoctorRoutine          []DoctorRoutine          `gorm:"foreignkey:ScheduleID"`
+	DoctorRecurringRoutine []DoctorRecurringRoutine `gorm:"foreignkey:ScheduleID"`
+}
+
+type DoctorRecurringRoutine struct {
+	ID         int
+	ScheduleID int
+	WeekDay    int
+
+	DoctorSchedule DoctorSchedule `gorm:"foreignkey:ScheduleID"`
 }
 
 type DoctorRoutine struct {
-	ID        int           `json:"id"`
-	DoctorID  int           `json:"doctor_id"`
-	StartDate *common.JDate `json:"start_date"`
-	EndDate   *common.JDate `json:"end_date"`
+	ID         int
+	ScheduleID int
+	Date       int64
 
-	Doctor Doctor `json:"-"`
+	DoctorSchedule DoctorSchedule `gorm:"foreignkey:ScheduleID"`
 }
 
 type OccupiedSlot struct {
@@ -33,12 +46,18 @@ type OccupiedSlot struct {
 	ClientName    string `json:"client_name"`
 	ClientEmail   string `json:"client_email"`
 	ClientDetails string `json:"client_details"`
-
-	Doctor Doctor `json:"-"`
 }
 
 func (DoctorRoutine) TableName() string {
-	return "doctors_routine"
+	return "doctor_routine"
+}
+
+func (DoctorRecurringRoutine) TableName() string {
+	return "doctor_recurring"
+}
+
+func (DoctorSchedule) TableName() string {
+	return "doctor_schedule"
 }
 
 func (OccupiedSlot) TableName() string {

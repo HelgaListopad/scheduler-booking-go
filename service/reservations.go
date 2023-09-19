@@ -1,8 +1,8 @@
 package service
 
 import (
-	"scheduler-booking/data"
 	"fmt"
+	"scheduler-booking/data"
 	"time"
 )
 
@@ -19,22 +19,17 @@ type ReservationForm struct {
 type Reservation struct {
 	DoctorID int             `json:"doctor"`
 	Date     int64           `json:"date"`
-	Form     ReservationForm `json:"data"`
+	Form     ReservationForm `json:"form"`
 }
 
 func (s *reservationsService) GetAll() ([]data.OccupiedSlot, error) {
-	records, err := s.dao.OccupiedSlots.GetWithQuery(data.Query{})
+	records, err := s.dao.OccupiedSlots.GetAll()
 	return records, err
 }
 
 func (s *reservationsService) Add(r Reservation) (int, error) {
-	// check if reservation time is available and has not expired
+	// check if reservation time is available and has not expired yet
 	err := s.checkIfReservationIsAvailable(r.DoctorID, r.Date)
-	if err != nil {
-		return 0, err
-	}
-	// check if doctor's schedule has exactly requested time
-	err = s.checkIfReservationIsCorrect(r.DoctorID, r.Date)
 	if err != nil {
 		return 0, err
 	}
@@ -62,14 +57,11 @@ func (s *reservationsService) Delete(id int) error {
 }
 
 func (s *reservationsService) checkIfReservationIsAvailable(doctorId int, date int64) error {
-	slots, err := s.dao.OccupiedSlots.GetWithQuery(data.Query{
-		DoctorID:  doctorId,
-		EqualDate: date,
-	})
+	slot, err := s.dao.OccupiedSlots.GetUsedSlot(doctorId, date)
 	if err != nil {
 		return err
 	}
-	if len(slots) > 0 && slots[0].ID != 0 {
+	if slot.ID != 0 {
 		return fmt.Errorf("this time is already booked")
 	}
 	if date < time.Now().UnixMilli() {
@@ -77,44 +69,4 @@ func (s *reservationsService) checkIfReservationIsAvailable(doctorId int, date i
 	}
 
 	return err
-}
-
-func (s *reservationsService) checkIfReservationIsCorrect(doctorId int, date int64) error {
-	doctor, err := s.dao.Doctors.GetOne(doctorId)
-	if err != nil {
-		return err
-	}
-	if doctor.ID == 0 {
-		return fmt.Errorf("doctor with id %d not found", doctorId)
-	}
-
-	w, err := s.dao.DoctorsRoutine.GetRoutineByTime(doctor.ID, time.UnixMilli(date))
-	if err != nil {
-		return err
-	}
-	l := len(w)
-	if l == 0 {
-		return fmt.Errorf("booking time not valid: doctor's schedule undefined")
-	}
-	if len(w) > 1 {
-		return fmt.Errorf("doctor's schedule is ambiguously")
-	}
-
-	schedule := w[0]
-	checkDate := schedule.StartDate.Date().UnixMilli()
-	endDate := schedule.EndDate.Date().UnixMilli()
-	step := int64((doctor.SlotSize + doctor.Gap) * 60 * 1000)
-	exists := false
-	for checkDate <= endDate {
-		if checkDate == date {
-			exists = true
-			break
-		}
-		checkDate += step
-	}
-	if !exists {
-		return fmt.Errorf("reservation time doesn't exist in schedule of the selected doctor")
-	}
-
-	return nil
 }

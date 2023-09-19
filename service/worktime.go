@@ -1,14 +1,22 @@
 package service
 
 import (
+	"fmt"
 	"scheduler-booking/common"
 	"scheduler-booking/data"
-	"fmt"
 	"time"
 )
 
 type worktimeService struct {
 	dao *data.DAO
+}
+
+type WorktimeO struct {
+	DoctorID int   `json:"doctor_id"`
+	From     int   `json:"from"`
+	To       int   `json:"to"`
+	Days     []int `json:"days"`
+	Dates    []int `json:"dates"`
 }
 
 type Worktime struct {
@@ -17,64 +25,92 @@ type Worktime struct {
 	EndDate   *common.JDate `json:"end_date"`
 }
 
-func (s *worktimeService) GetAll() ([]data.DoctorRoutine, error) {
-	records, err := s.dao.DoctorsRoutine.GetAll(false)
-	return records, err
+type DoctorRoutine struct {
+	ID        int       `json:"id"`
+	DoctorID  int       `json:"doctor_id"`
+	StartDate time.Time `json:"start_date,omitempty"`
+	EndDate   time.Time `json:"end_date,omitempty"`
 }
 
+// returns records for the Scheduler Doctors View
+func (s *worktimeService) GetRoutine() ([]DoctorRoutine, error) {
+	schedule, err := s.dao.DoctorsSchedule.GetAllSchedule()
+	out := make([]DoctorRoutine, 0)
+	for _, sch := range schedule {
+		if len(sch.DoctorRoutine) == 0 {
+			continue
+		}
+
+		loc := time.Now().Location()
+
+		routine := sch.DoctorRoutine[0]
+
+		y, m, d := time.UnixMilli(routine.Date).Date()
+		fh := sch.From / 60
+		fm := sch.From % 60
+		th := sch.To / 60
+		tm := sch.To % 60
+
+		r := DoctorRoutine{
+			ID:        sch.ID,
+			DoctorID:  sch.DoctorID,
+			StartDate: time.Date(y, m, d, fh, fm, 0, 0, loc),
+			EndDate:   time.Date(y, m, d, th, tm, 0, 0, loc),
+		}
+
+		out = append(out, r)
+	}
+
+	return out, err
+}
+
+// adds doctor's schedule for the specific day
 func (s *worktimeService) Add(data Worktime) (int, error) {
 	if err := data.validate(); err != nil {
 		return 0, err
 	}
-	id, err := s.dao.DoctorsRoutine.Add(data.DoctorID, data.StartDate, data.EndDate)
+
+	date := data.StartDate.UnixMilli()
+	from := data.StartDate.Hour()*60 + data.StartDate.Minute()
+	to := data.EndDate.Hour()*60 + data.EndDate.Minute()
+
+	id, err := s.dao.DoctorsSchedule.AddRoutineOnDate(data.DoctorID, from, to, date)
+
 	return id, err
 }
 
-func (s *worktimeService) Update(id int, data Worktime) error {
-	routine, err := s.dao.DoctorsRoutine.GetOne(id)
+// updates doctor's schedule for the specifc day
+func (s *worktimeService) UpdateDateSchedule(scheduleId int, data Worktime) error {
+	schedule, err := s.dao.DoctorsSchedule.GetOne(scheduleId)
 	if err != nil {
 		return err
 	}
-	if routine.ID == 0 {
-		return fmt.Errorf("record not found")
+	if schedule.ID == 0 {
+		return fmt.Errorf("schedule with id %d not found", scheduleId)
 	}
 	if err := data.validate(); err != nil {
 		return err
 	}
 
-	err = s.dao.DoctorsRoutine.Update(id, data.DoctorID, data.StartDate, data.EndDate)
+	date := data.StartDate.UnixMilli()
+	from := data.StartDate.Hour()*60 + data.StartDate.Minute()
+	to := data.EndDate.Hour()*60 + data.EndDate.Minute()
+
+	err = s.dao.DoctorsSchedule.UpdateDateSchedule(scheduleId, data.DoctorID, from, to, date)
+
 	return err
 }
 
+// delets doctor's schedule for the specific day
 func (s *worktimeService) Delete(id int) error {
-	w, err := s.dao.DoctorsRoutine.GetOne(id)
-	if err != nil {
-		return err
-	}
-	if w.StartDate.Date().UnixMilli() < time.Now().UnixMilli() {
-		return fmt.Errorf("cannot delete schedule from the past")
-	}
-
-	data, err := s.dao.OccupiedSlots.GetWithQuery(data.Query{
-		DoctorID: w.DoctorID,
-		MinDate:  w.StartDate.Date().UnixMilli(),
-		MaxDate:  w.EndDate.Date().UnixMilli(),
-	})
-	if err != nil {
-		return err
-	}
-	if len(data) > 0 {
-		return fmt.Errorf("cannot delete schedule until it has reservations")
-	}
-
-	return s.dao.DoctorsRoutine.Delete(id)
+	return s.dao.DoctorsSchedule.Delete(id)
 }
 
 func (w Worktime) validate() error {
-	if w.StartDate.Date().UnixMilli() < time.Now().UnixMilli() {
+	if w.StartDate.UnixMilli() < time.Now().UnixMilli() {
 		return fmt.Errorf("cannot set work time in the past")
 	}
-	if w.StartDate.Date().UnixMilli() >= w.EndDate.Date().UnixMilli() {
+	if w.StartDate.UnixMilli() >= w.EndDate.UnixMilli() {
 		return fmt.Errorf("invalid time interval")
 	}
 	return nil

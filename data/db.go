@@ -12,10 +12,11 @@ type DBConfig struct {
 }
 
 type DAO struct {
-	db             *gorm.DB
-	Doctors        *doctorsDAO
-	DoctorsRoutine *doctorsRoutineDAO
-	OccupiedSlots  *occupiedSlotsDAO
+	db      *gorm.DB
+	Doctors *doctorsDAO
+	// DoctorsRoutine  *doctorsRoutineDAO
+	DoctorsSchedule *doctorsScheduleDAO
+	OccupiedSlots   *occupiedSlotsDAO
 }
 
 func NewDAO(config DBConfig) *DAO {
@@ -26,24 +27,30 @@ func NewDAO(config DBConfig) *DAO {
 		panic("failed to connect database")
 	}
 
-	db.AutoMigrate(&Doctor{})
-	db.AutoMigrate(&DoctorRoutine{})
+	db.AutoMigrate(&DoctorRecurringRoutine{})
 	db.AutoMigrate(&OccupiedSlot{})
+	db.AutoMigrate(&DoctorRoutine{})
+	db.AutoMigrate(&DoctorSchedule{})
+	db.AutoMigrate(&Doctor{})
 
 	dao := DAO{db: db}
 	dao.Doctors = newDoctorsDAO(db)
-	dao.DoctorsRoutine = newDoctorsRoutineDAO(db)
+	dao.DoctorsSchedule = newDoctorsScheduleDAO(db)
 	dao.OccupiedSlots = newOccupiedSlotsDAO(db)
 
 	if config.ResetOnStart {
-		db.Transaction(func(tx *gorm.DB) error {
-			dataDown(tx)
-			dataUp(tx)
-			return nil
-		})
+		dao.RestartData()
 	}
 
 	return &dao
+}
+
+func (d *DAO) RestartData() {
+	d.db.Transaction(func(tx *gorm.DB) error {
+		dataDown(tx)
+		dataUp(tx)
+		return nil
+	})
 }
 
 func (d *DAO) GetDB() *gorm.DB {
