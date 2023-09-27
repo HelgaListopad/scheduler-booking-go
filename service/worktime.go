@@ -25,17 +25,17 @@ type Worktime struct {
 	EndDate   *common.JDate `json:"end_date"`
 }
 
-type DoctorRoutine struct {
-	ID        int       `json:"id"`
-	DoctorID  int       `json:"doctor_id"`
-	StartDate time.Time `json:"start_date,omitempty"`
-	EndDate   time.Time `json:"end_date,omitempty"`
+type DoctorRoutineStr struct {
+	ID        int    `json:"id"`
+	DoctorID  int    `json:"doctor_id"`
+	StartDate string `json:"start_date,omitempty"`
+	EndDate   string `json:"end_date,omitempty"`
 }
 
 // returns records for the Scheduler Doctors View
-func (s *worktimeService) GetRoutine() ([]DoctorRoutine, error) {
+func (s *worktimeService) GetRoutine() ([]DoctorRoutineStr, error) {
 	schedule, err := s.dao.DoctorsSchedule.GetAllSchedule()
-	out := make([]DoctorRoutine, 0)
+	out := make([]DoctorRoutineStr, 0)
 	for _, sch := range schedule {
 		if len(sch.DoctorRoutine) == 0 {
 			continue
@@ -45,17 +45,19 @@ func (s *worktimeService) GetRoutine() ([]DoctorRoutine, error) {
 
 		routine := sch.DoctorRoutine[0]
 
+		strFormat := "2006-01-02 15:04:05"
+
 		y, m, d := time.UnixMilli(routine.Date).Date()
 		fh := sch.From / 60
 		fm := sch.From % 60
 		th := sch.To / 60
 		tm := sch.To % 60
 
-		r := DoctorRoutine{
+		r := DoctorRoutineStr{
 			ID:        sch.ID,
 			DoctorID:  sch.DoctorID,
-			StartDate: time.Date(y, m, d, fh, fm, 0, 0, loc),
-			EndDate:   time.Date(y, m, d, th, tm, 0, 0, loc),
+			StartDate: time.Date(y, m, d, fh, fm, 0, 0, loc).Format(strFormat),
+			EndDate:   time.Date(y, m, d, th, tm, 0, 0, loc).Format(strFormat),
 		}
 
 		out = append(out, r)
